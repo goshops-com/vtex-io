@@ -1,0 +1,12 @@
+<script>
+  (function() {
+    var appId = "{{settings.clientId}}";
+    if (!appId) {
+      console.error('Warning: No APP NAME ID is defined. Please configure it in the apps admin.');
+      return
+    }else{
+      console.info(`gopersonal CLIENT ID is ${appId}`);
+    } 
+    // Add script here
+  })()
+</script>
