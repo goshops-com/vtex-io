@@ -17,6 +17,7 @@ export interface PixelMessage extends MessageEvent {
     | PromoViewData
     | PromotionClickData
     | NewsletterSubscriptionData
+    | AddToWishlistData
 }
 
 export interface EventData {
@@ -168,6 +169,16 @@ export interface NewsletterSubscriptionData extends EventData {
   name: string
   email: string
   phone: string
+}
+
+export interface AddToWishlistData extends EventData {
+  event: 'addToWishlist'
+  eventType: 'vtex:addToWishlist'
+  eventName: 'vtex:addToWishlist'
+  items: {
+    product: ProductSummary
+  }
+  list: string
 }
 
 interface Promotion {

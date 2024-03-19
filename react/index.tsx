@@ -9,6 +9,33 @@ export function handleEvents(e: PixelMessage) {
     case 'vtex:pageView': {
       break
     }
+    case 'vtex:productView': {
+      if(e.data.product?.productId){
+        window.gsSDK.addInteraction({
+          "event": "view",
+          "item": e.data.product.productId
+        });
+      }
+      break
+    }
+    case 'vtex:userData': {
+      if(e.data?.email){
+        window.gsSDK.login('customer_id', {email: e.data?.email, param_updateCartFromCustomer: true});
+      }else{
+        window.gsSDK.logout();
+      }
+      break;
+    }
+    case 'vtex:addToWishlist': {
+      if(e.data?.items?.product?.productId){
+        window.gsSDK.addInteraction({
+          "event": "like",
+          "item": e.data.items.product.productId
+        });
+      }
+      
+      break;
+    }
 
     default: {
       break
