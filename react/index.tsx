@@ -2,7 +2,7 @@ import { canUseDOM } from 'vtex.render-runtime'
 
 import type { PixelMessage } from './typings/events'
 
-export function handleEvents(e: PixelMessage) {
+export async function handleEvents(e: PixelMessage) {
   console.log('Event: ', e.data?.eventName);
   
   switch (e.data.eventName) {
@@ -36,7 +36,69 @@ export function handleEvents(e: PixelMessage) {
       
       break;
     }
+    case 'vtex:addToCart': {
+      if(e.data?.items?.length > 0 && e.data?.items[0].productId){
+        window.gsSDK.addInteraction({
+          "event": "cart",
+          "item": e.data?.items[0].productId,
+          "quantity": e.data?.items[0].quantity,
+          "price": e.data?.items[0].price
+        });
+      }
+      
+      break;
+    }
+    case 'vtex:removeFromCart': {
+      if(e.data?.items?.length > 0 && e.data?.items[0].productId){
+        window.gsSDK.addInteraction({
+          "event": "remove-cart",
+          "item": e.data?.items[0].productId,
+          "quantity": e.data?.items[0].quantity,
+          "price": e.data?.items[0].price
+        });
+      }
+      
+      break;
+    }
+    case 'vtex:cartChanged': {
+      console.log( 'cartChanged' , JSON.stringify(e.data || ''));
 
+      if(e.data?.items?.length > 0){
+        const state = {
+          cart: {
+            amountOfProducts: getAmountOfProducts(e.data.items),
+            totalAmount: getTotalAmount(e.data.items),
+            products: e.data.items.map(item => {
+              return {
+                id: item.productId,
+                price: item.price,
+                quantity: item.quantity,
+                image_url: item.imageUrl,
+              }
+            })
+          }
+        }
+        console.log('state', state);
+        window.gsSDK.updateState(state);
+      }else{
+        window.gsSDK.addInteraction({
+          "event": "clean-cart"
+        });
+      }
+    
+      break;
+    }
+    case 'vtex:orderPlaced': {
+      
+      if(e.data?.transactionId){
+        window.gsSDK.addInteractionState('cart', { "transactionId": e.data?.transactionId });
+      }else{
+        window.gsSDK.addInteractionState('cart');
+      }
+      
+      break;
+    }
+    
     default: {
       break
     }
@@ -46,3 +108,19 @@ export function handleEvents(e: PixelMessage) {
 if (canUseDOM) {
   window.addEventListener('message', handleEvents)
 }
+function getAmountOfProducts(items: import("./typings/events").CartItem[]) {
+  let amount = 0;
+  items.forEach(item => {
+    amount += item.quantity;
+  });
+  return amount;
+}
+
+function getTotalAmount(items: import("./typings/events").CartItem[]) {
+  let amount = 0;
+  items.forEach(item => {
+    amount += item.price * item.quantity;
+  });
+  return amount;
+}
+
