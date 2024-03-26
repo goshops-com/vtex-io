@@ -6,9 +6,6 @@ export async function handleEvents(e: PixelMessage) {
   console.log('Event: ', e.data?.eventName);
   
   switch (e.data.eventName) {
-    case 'vtex:pageView': {
-      break
-    }
     case 'vtex:productView': {
       if(e.data.product?.productId){
         window.gsSDK.addInteraction({
@@ -78,7 +75,6 @@ export async function handleEvents(e: PixelMessage) {
             })
           }
         }
-        console.log('state', state);
         window.gsSDK.updateState(state);
       }else{
         window.gsSDK.addInteraction({
@@ -96,6 +92,16 @@ export async function handleEvents(e: PixelMessage) {
         window.gsSDK.addInteractionState('cart');
       }
       
+      break;
+    }
+    case 'vtex:pageView' : {
+      console.log('page data', e.data);
+
+      const context = getContext();
+      let { pageType, ...contentWithoutPageType } = context;
+      
+      window.gsSDK.getContentByContext(pageType, contentWithoutPageType);
+
       break;
     }
     
@@ -122,5 +128,29 @@ function getTotalAmount(items: import("./typings/events").CartItem[]) {
     amount += item.price * item.quantity;
   });
   return amount;
+}
+
+function getContext(){
+  let path = window.location.pathname;
+  let hash = window.location.hash; 
+  let url = window.location.href;
+
+  if (path == '/'){
+    return { pageType: 'home'}
+  }
+
+  // New regex pattern to match paths ending with "/p" before query parameters
+  const productDetailRegex = /\/[^/]+\/p$/;
+  if (productDetailRegex.test(path)) {
+    return { pageType: 'product_detail', preProcess: ["findItemByField:url"], fieldValue: url  };
+  }
+
+  // Adjusted to check for both the pathname and hash for the checkout page
+  if (path.startsWith('/checkout/') && hash.includes('#/cart')) {
+    return { pageType: 'checkout' }; // Changed 'cart' to 'checkout' to match your requirement
+  }
+
+  // Default case if none of the above conditions are met
+  return { pageType: 'unknown' };
 }
 
