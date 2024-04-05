@@ -8,6 +8,9 @@ export async function handleEvents(e: PixelMessage) {
   switch (e.data.eventName) {
     case 'vtex:productView': {
       if(e.data.product?.productId){
+
+        window.gsSDK.getContentByContext('product_detail', {"product_id": e.data.product?.productId, "singlePage": true});
+
         window.gsSDK.addInteraction({
           "event": "view",
           "item": e.data.product.productId
@@ -17,9 +20,9 @@ export async function handleEvents(e: PixelMessage) {
     }
     case 'vtex:userData': {
       if(e.data?.email){
-        window.gsSDK.login('customer_id', {email: e.data?.email, param_updateCartFromCustomer: true});
+        retryLogin(3, 0, e.data?.id ,e.data?.email, true);
       }else{
-        window.gsSDK.logout();
+        window.gsSDK?.logout();
       }
       break;
     }
@@ -97,10 +100,14 @@ export async function handleEvents(e: PixelMessage) {
     case 'vtex:pageView' : {
       console.log('page data', e.data);
 
+      let path = window.location.pathname;
+      const productDetailRegex = /\/[^/]+\/p$/;
+      if (productDetailRegex.test(path)) return;
+
       const context = getContext();
       let { pageType, ...contentWithoutPageType } = context;
       
-      window.gsSDK.getContentByContext(pageType, contentWithoutPageType);
+      retryContentByContext(3, 0, pageType,contentWithoutPageType);
 
       break;
     }
@@ -114,6 +121,41 @@ export async function handleEvents(e: PixelMessage) {
 if (canUseDOM) {
   window.addEventListener('message', handleEvents)
 }
+
+function retryContentByContext(maxTries: number, tries: number,pageType: string, contentWithoutPageType: { singlePage: boolean; preProcess?: undefined; fieldValue?: undefined; } | { preProcess: string[]; fieldValue: string; singlePage: boolean; }){
+  if(window.gsSDK){
+      window.gsSDK.getContentByContext(pageType, contentWithoutPageType);
+      return null;
+  }
+  else{
+    if(tries < maxTries){
+      return setTimeout(()=> {
+        retryContentByContext(maxTries,tries++, pageType,contentWithoutPageType);
+      },100)
+    }else{
+      return null;
+    }
+    
+  }
+}
+
+function retryLogin(maxTries: number, tries: number, id: string | undefined, email: string, param_updateCartFromCustomer: boolean){
+  if(window.gsSDK){
+      window.gsSDK.login(id, {email: email, param_updateCartFromCustomer: param_updateCartFromCustomer});
+      return null;
+  }
+  else{
+    if(tries < maxTries){
+      return setTimeout(()=> {
+        retryLogin(maxTries,tries++, id, email, param_updateCartFromCustomer);
+      },100)
+    }else{
+      return null;
+    }
+    
+  }
+}
+
 function getAmountOfProducts(items: import("./typings/events").CartItem[]) {
   let amount = 0;
   items.forEach(item => {
@@ -136,21 +178,21 @@ function getContext(){
   let url = window.location.href;
 
   if (path == '/'){
-    return { pageType: 'home'}
+    return { pageType: 'home', singlePage: true}
   }
 
   // New regex pattern to match paths ending with "/p" before query parameters
   const productDetailRegex = /\/[^/]+\/p$/;
   if (productDetailRegex.test(path)) {
-    return { pageType: 'product_detail', preProcess: ["findItemByField:url"], fieldValue: url  };
+    return { pageType: 'product_detail', preProcess: ["findItemByField:url"], fieldValue: url, singlePage: true  };
   }
 
   // Adjusted to check for both the pathname and hash for the checkout page
   if (path.startsWith('/checkout/') && hash.includes('#/cart')) {
-    return { pageType: 'checkout' }; // Changed 'cart' to 'checkout' to match your requirement
+    return { pageType: 'checkout', singlePage: true }; // Changed 'cart' to 'checkout' to match your requirement
   }
 
   // Default case if none of the above conditions are met
-  return { pageType: 'unknown' };
+  return { pageType: 'unknown', singlePage: true };
 }
 
