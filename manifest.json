@@ -1,7 +1,7 @@
 {
   "name": "gopersonal",
-  "vendor": "passarelape",
-  "version": "2.0.19",
+  "vendor": "VTEX_ACCOUNT",
+  "version": "2.0.24",
   "title": "gopersonal",
   "description": "Personalization platform",
   "billingOptions": {
@@ -22,8 +22,9 @@
     "docs": "0.x"
   },
   "dependencies": {
-    "vtex.pixel-interfaces": "1.x"
-  },
+    "vtex.pixel-interfaces": "1.x",
+     "vtex.order-items": "0.x"
+	},
   "settingsSchema": {
     "title": "gopersonal",
     "type": "object",
