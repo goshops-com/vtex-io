@@ -120,6 +120,11 @@ export async function handleEvents(e: PixelMessage) {
 
 if (canUseDOM) {
   window.addEventListener('message', handleEvents)
+}else{
+  console.log('canUseDOM is false');
+  setTimeout(() => {
+    window.addEventListener('message', handleEvents);
+  }, 500);
 }
 
 function retryContentByContext(maxTries: number, tries: number,pageType: string, contentWithoutPageType: { singlePage: boolean; preProcess?: undefined; fieldValue?: undefined; } | { preProcess: string[]; fieldValue: string; singlePage: boolean; }){
