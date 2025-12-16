@@ -36,3 +36,5 @@ lib
 *.orig
 .vscode
 package-lock.json
+agents.md
+./docs

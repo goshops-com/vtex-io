@@ -1,22 +1,58 @@
+import React, { useEffect } from 'react'
 import { canUseDOM } from 'vtex.render-runtime'
 import { useOrderItems } from 'vtex.order-items/OrderItems'
 
 import type { PixelMessage } from './typings/events'
 
-export async function handleEvents(e: PixelMessage) {
+// Event bus for communication between non-React code and React components
+export const vtexEventBus = {
+  listeners: new Set<(event: PixelMessage) => void>(),
+
+  subscribe(callback: (event: PixelMessage) => void) {
+    this.listeners.add(callback);
+    return () => { this.listeners.delete(callback) };
+  },
+
+  emit(event: PixelMessage) {
+    this.listeners.forEach(listener => listener(event));
+  }
+};
+
+// React component that handles events requiring hooks
+const EventHandler: React.FC = () => {
+  const { addItems } = useOrderItems()
+
+  useEffect(() => {
+    const unsubscribe = vtexEventBus.subscribe(async (e: PixelMessage) => {
+      if (e.data?.eventName === 'vtex:handleAddToCart' && e.data.items) {
+        try {
+          const items = await addItems(e.data.items, {
+            marketingData: {},
+            allowedOutdatedData: ['paymentData']
+          })
+          console.log(items)
+        } catch (error) {
+          console.error('Error adding items to cart:', error)
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [addItems]);
+
+  return null;
+}
+
+export default EventHandler;
+
+export function handleEvents(e: PixelMessage) {
   console.log('Event: ', e.data?.eventName);
-  
+
   switch (e.data.eventName) {
 
     case 'vtex:handleAddToCart': {
-      if(e.data.items){
-        const { addItems } = useOrderItems()
-        const items = await addItems(e.data.items, {
-          marketingData: { },
-          allowedOutdatedData: ['paymentData']
-        })
-        console.log(items)
-      }
+      // Emit to event bus - the React component will handle this
+      vtexEventBus.emit(e);
       break
     }
     case 'vtex:productView': {

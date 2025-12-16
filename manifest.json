@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "vtex.pixel-interfaces": "1.x",
-     "vtex.order-items": "0.x"
-	},
+    "vtex.order-items": "0.x"
+  },
   "settingsSchema": {
     "title": "gopersonal",
     "type": "object",
