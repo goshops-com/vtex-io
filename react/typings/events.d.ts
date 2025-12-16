@@ -18,6 +18,7 @@ export interface PixelMessage extends MessageEvent {
     | PromotionClickData
     | NewsletterSubscriptionData
     | AddToWishlistData
+    | AddToCartHandleData
 }
 
 export interface EventData {
@@ -93,6 +94,12 @@ export interface PageViewData extends EventData {
   pageTitle: string
   pageUrl: string
   referrer: string
+}
+
+export interface AddToCartHandleData extends EventData {
+  event: 'handleAddToCart'
+  eventName: 'vtex:handleAddToCart'
+  items: CartItem[]
 }
 
 export interface AddToCartData extends EventData {
