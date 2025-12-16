@@ -1,4 +1,5 @@
 import { canUseDOM } from 'vtex.render-runtime'
+import { useOrderItems } from 'vtex.order-items/OrderItems'
 
 import type { PixelMessage } from './typings/events'
 
@@ -6,6 +7,17 @@ export async function handleEvents(e: PixelMessage) {
   console.log('Event: ', e.data?.eventName);
   
   switch (e.data.eventName) {
+
+    case 'vtex:handleAddToCart': {
+      if(e.data.cartItems){
+        const { addItems } = useOrderItems()
+        const items = await addItems(e.data.cartItems, {
+          marketingData: { },
+          allowedOutdatedData: ['paymentData']
+        })
+      }
+      break
+    }
     case 'vtex:productView': {
       if(e.data.product?.productId){
 
