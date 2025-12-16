@@ -9,11 +9,13 @@ export const vtexEventBus = {
   listeners: new Set<(event: PixelMessage) => void>(),
 
   subscribe(callback: (event: PixelMessage) => void) {
+    console.log("subscribe")
     this.listeners.add(callback);
     return () => { this.listeners.delete(callback) };
   },
 
   emit(event: PixelMessage) {
+    console.log("emit")
     this.listeners.forEach(listener => listener(event));
   }
 };
@@ -21,11 +23,18 @@ export const vtexEventBus = {
 // React component that handles events requiring hooks
 const EventHandler: React.FC = () => {
   const { addItems } = useOrderItems()
-
+console.log("event handler")
   useEffect(() => {
+    console.log("event hanndler 2")
     const unsubscribe = vtexEventBus.subscribe(async (e: PixelMessage) => {
       if (e.data?.eventName === 'vtex:handleAddToCart' && e.data.items) {
+    console.log("event hanndler 3")
+    console.log("item",e.data.items)
+
+
         try {
+    console.log("calling add items")
+
           const items = await addItems(e.data.items, {
             marketingData: {},
             allowedOutdatedData: ['paymentData']
