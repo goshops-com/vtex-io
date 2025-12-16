@@ -1,6 +1,6 @@
 {
   "name": "gopersonal",
-  "vendor": "VTEX_ACCOUNT",
+  "vendor": "vfs",
   "version": "2.0.25",
   "title": "gopersonal",
   "description": "Personalization platform",
