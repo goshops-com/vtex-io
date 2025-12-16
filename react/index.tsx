@@ -9,7 +9,7 @@ export async function handleEvents(e: PixelMessage) {
   switch (e.data.eventName) {
 
     case 'vtex:handleAddToCart': {
-      if(e.data.cartItems){
+      if(e.data.items){
         const { addItems } = useOrderItems()
         const items = await addItems(e.data.items, {
           marketingData: { },
