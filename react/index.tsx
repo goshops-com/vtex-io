@@ -11,7 +11,7 @@ export async function handleEvents(e: PixelMessage) {
     case 'vtex:handleAddToCart': {
       if(e.data.cartItems){
         const { addItems } = useOrderItems()
-        const items = await addItems(e.data.cartItems, {
+        const items = await addItems(e.data.items, {
           marketingData: { },
           allowedOutdatedData: ['paymentData']
         })
