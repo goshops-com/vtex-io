@@ -15,6 +15,7 @@ export async function handleEvents(e: PixelMessage) {
           marketingData: { },
           allowedOutdatedData: ['paymentData']
         })
+        console.log(items)
       }
       break
     }
