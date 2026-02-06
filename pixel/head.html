@@ -1,10 +1,18 @@
 <script>
   async function initializeGSSDK() {
-      window.gsSDK = await new window.GSSDK.default('{{settings.clientId}}', {
+      const clientId = '{{settings.clientId}}';
+      const hasSharedSession = {{settings.sharedSessionEnabled}};
+
+      window.gsSDK = await new window.GSSDK.default(clientId, {
           provider: 'Vtex',
           singlePage: true,
           context: {},
+          readSharedSession: hasSharedSession
       });
+      if (hasSharedSession) {
+        console.log('GP: Shared token enabled');
+        await window.gsSDK.setSharedToken();
+      }
   }
   var gsSDKScript = document.createElement('script');
   gsSDKScript.src = 'https://sdk.gopersonal.ai/gs-sdk.js';

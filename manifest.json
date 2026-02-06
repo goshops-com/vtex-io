@@ -1,7 +1,7 @@
 {
   "name": "gopersonal",
   "vendor": "VTEX_ACCOUNT",
-  "version": "2.0.25",
+  "version": "2.0.26",
   "title": "gopersonal",
   "description": "Personalization platform",
   "billingOptions": {
@@ -33,6 +33,12 @@
         "title": "Client ID",
         "description": "Enter the Client ID available in the integration panel in gopersonal admin.",
         "type": "string"
+      },
+      "sharedSessionEnabled": {
+        "title": "Share sessions between domains",
+        "description": "Enable shared sessions for this client.",
+        "type": "boolean",
+        "default": false
       }
     }
   },
