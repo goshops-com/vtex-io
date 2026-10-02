@@ -15,3 +15,27 @@ Step 3: In your VTEX admin in the App Management section go to gopersonal App.
 Step 4: Open the app settings, paste the clientId and click save.
 
 ![alt text](https://gs-prod-public.goshops.ai/uploads/2025/01/ec8d0539-a709-4881-85a4-badac0e92592.webp)
+
+Step 5: Setup the checkout page
+Open Checkout section, in file checkout6-custom.js:
+
+https://ACCOUNT.myvtex.com/admin/portal/#/sites/default/code/files/checkout6-custom.js
+
+Add the snippet replacing "REPLACE_ME_CLIENT_ID" with your clientId:
+
+```javascript
+async function initializeGSSDK() {
+    window.gsSDK = await new window.GSSDK.default('REPLACE_ME_CLIENT_ID', {
+        provider: 'Vtex',
+        context: {pageType: 'checkout'}
+    });
+}
+var gsSDKScript = document.createElement('script');
+gsSDKScript.src = 'https://sdk.gopersonal.ai/gs-sdk.js';
+gsSDKScript.onload = initializeGSSDK;
+document.head.appendChild(gsSDKScript);
+```
+
+Note: If your checkout page uses a custom implementation, add the snippet to the JavaScript code used for the checkout.
+
+
